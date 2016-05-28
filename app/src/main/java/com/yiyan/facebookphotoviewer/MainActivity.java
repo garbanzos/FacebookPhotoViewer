@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -38,8 +37,6 @@ public class MainActivity extends AppCompatActivity {
         String name = inBundle.get("name").toString();
         String surname = inBundle.get("surname").toString();
 
-        TextView nameView = (TextView)findViewById(R.id.nameAndSurname);
-        nameView.setText("" + name + " " + surname);
 
         photoListView = (ListView)findViewById(R.id.photo_list);
         photoObjList = new ArrayList<>();
@@ -91,6 +88,12 @@ public class MainActivity extends AppCompatActivity {
                 }
         ).executeAsync();
     }
+
+
+
+    /*****************************
+     * Menu bar
+     *****************************/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
