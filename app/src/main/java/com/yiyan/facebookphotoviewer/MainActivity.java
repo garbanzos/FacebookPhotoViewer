@@ -3,11 +3,8 @@ package com.yiyan.facebookphotoviewer;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,10 +22,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    JSONArray albumJsonArray = null;
+    JSONArray photoJsonArray = null;
     ListView photoListView;
-    ArrayAdapter mAdapter;
-    ArrayList<String> photoList = new ArrayList<>();
+
+    PhotoListAdapter photoListAdapter;
+    ArrayList<Photo> photoObjList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,34 +37,31 @@ public class MainActivity extends AppCompatActivity {
         Bundle inBundle = getIntent().getExtras();
         String name = inBundle.get("name").toString();
         String surname = inBundle.get("surname").toString();
-        String imageUrl = inBundle.get("imageUrl").toString();
 
         TextView nameView = (TextView)findViewById(R.id.nameAndSurname);
         nameView.setText("" + name + " " + surname);
 
         photoListView = (ListView)findViewById(R.id.photo_list);
-        mAdapter = new ArrayAdapter<>(this,
-                R.layout.item_list_photo,
-                R.id.photo_title,
-                photoList);
-        photoListView.setAdapter(mAdapter);
+        photoObjList = new ArrayList<>();
+        photoListAdapter = new PhotoListAdapter(this, photoObjList);
+        photoListView.setAdapter(photoListAdapter);
 
-        // get albums
+        // get photos
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                "/me/albums",
+                "/3128905935464/photos",
                 null,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
                         JSONObject jsonObject = response.getJSONObject();
                         try {
-                            albumJsonArray = jsonObject.getJSONArray("data");
-                            for(int i = 0; i < albumJsonArray.length(); i++){
-                                JSONObject oneAlbum = albumJsonArray.getJSONObject(i);
-                                photoList.add(oneAlbum.getString("name"));
+                            photoJsonArray = jsonObject.getJSONArray("data");
+                            for(int i = 0; i < photoJsonArray.length(); i++){
+                                JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
+                                photoObjList.add(new Photo(photoJsonObject));
                             }
-                            mAdapter.notifyDataSetChanged();
+                            photoListAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -73,18 +69,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         ).executeAsync();
 
-        for(int i = 0; i < albumJsonArray.length(); i++){
-            JSONObject oneAlbum = null;
-            try {
-                oneAlbum = albumJsonArray.getJSONObject(i);
-                Log.d("album nameeee", oneAlbum.getString("name"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        new DownloadImage((ImageView)findViewById(R.id.profileImage)).execute("https://graph.facebook.com/865787606822791/picture?type=normal");
     }
 
     @Override
