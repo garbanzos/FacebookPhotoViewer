@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -19,9 +21,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     JSONArray albumJsonArray = null;
+    ListView photoListView;
+    ArrayAdapter mAdapter;
+    ArrayList<String> photoList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
         TextView nameView = (TextView)findViewById(R.id.nameAndSurname);
         nameView.setText("" + name + " " + surname);
 
+        photoListView = (ListView)findViewById(R.id.photo_list);
+        mAdapter = new ArrayAdapter<>(this,
+                R.layout.item_list_photo,
+                R.id.photo_title,
+                photoList);
+        photoListView.setAdapter(mAdapter);
+
         // get albums
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
@@ -49,9 +63,9 @@ public class MainActivity extends AppCompatActivity {
                             albumJsonArray = jsonObject.getJSONArray("data");
                             for(int i = 0; i < albumJsonArray.length(); i++){
                                 JSONObject oneAlbum = albumJsonArray.getJSONObject(i);
-                                Log.d("ALBUMS", oneAlbum.getString("name"));
-                                Log.d("ALBUM ID", oneAlbum.getString("id"));
+                                photoList.add(oneAlbum.getString("name"));
                             }
+                            mAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -59,8 +73,16 @@ public class MainActivity extends AppCompatActivity {
                 }
         ).executeAsync();
 
-        // get photos
+        for(int i = 0; i < albumJsonArray.length(); i++){
+            JSONObject oneAlbum = null;
+            try {
+                oneAlbum = albumJsonArray.getJSONObject(i);
+                Log.d("album nameeee", oneAlbum.getString("name"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
+        }
 
         new DownloadImage((ImageView)findViewById(R.id.profileImage)).execute("https://graph.facebook.com/865787606822791/picture?type=normal");
     }
