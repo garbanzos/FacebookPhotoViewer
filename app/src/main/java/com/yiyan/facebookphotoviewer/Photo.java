@@ -9,13 +9,11 @@ public class Photo {
     private String photoId;
     private String photoAlbum;
 
-    public Photo(JSONObject photoJsonObject) {
+    public Photo(JSONObject photoJsonObject, String photoAlbum) {
         try {
-            photoTitle = photoJsonObject.has("name") ? photoJsonObject.getString("name") : "no title";
-            photoId = photoJsonObject.getString("id");
-
-            //TODO get album
-            photoAlbum = "photo album title";
+            this.photoTitle = photoJsonObject.has("name") ? photoJsonObject.getString("name") : "no title";
+            this.photoId = photoJsonObject.getString("id");
+            this.photoAlbum = photoAlbum;
 
         } catch (JSONException e) {
             e.printStackTrace();

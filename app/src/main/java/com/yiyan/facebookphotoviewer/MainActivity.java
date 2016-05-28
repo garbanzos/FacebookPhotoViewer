@@ -46,10 +46,32 @@ public class MainActivity extends AppCompatActivity {
         photoListAdapter = new PhotoListAdapter(this, photoObjList);
         photoListView.setAdapter(photoListAdapter);
 
-        // get photos
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                "/3128905935464/photos",
+                "/me/albums",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        JSONObject jsonObject = response.getJSONObject();
+                        try {
+                            JSONArray albumJsonArray = jsonObject.getJSONArray("data");
+                            for(int i = 0; i < albumJsonArray.length(); i++){
+                                JSONObject albumJsonObject = albumJsonArray.getJSONObject(i);
+                                getPhotosFromAlbum(albumJsonObject.getString("id"), albumJsonObject.getString("name"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
+    }
+
+    public void getPhotosFromAlbum(String albumId, final String albumName) {
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/" + albumId + "/photos",
                 null,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
@@ -59,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                             photoJsonArray = jsonObject.getJSONArray("data");
                             for(int i = 0; i < photoJsonArray.length(); i++){
                                 JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
-                                photoObjList.add(new Photo(photoJsonObject));
+                                photoObjList.add(new Photo(photoJsonObject, albumName));
                             }
                             photoListAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
@@ -68,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         ).executeAsync();
-
     }
 
     @Override
