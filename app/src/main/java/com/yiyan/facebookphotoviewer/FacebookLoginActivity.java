@@ -75,7 +75,7 @@ public class FacebookLoginActivity extends AppCompatActivity {
             public void onError(FacebookException e) {
             }
         };
-        loginButton.setReadPermissions("user_friends");
+        loginButton.setReadPermissions("user_photos");
         loginButton.registerCallback(callbackManager, callback);
     }
 
