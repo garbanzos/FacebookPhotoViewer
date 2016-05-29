@@ -18,15 +18,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
-    JSONArray photoJsonArray = null;
     ListView photoListView;
-
     PhotoListAdapter photoListAdapter;
     ArrayList<Photo> photoObjList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,30 +64,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getPhotosFromAlbum(String albumId, final String albumName) {
+        GraphRequest.Callback getPhotosFromAlbumCallback = new GraphRequest.Callback() {
+            public void onCompleted(GraphResponse response) {
+                JSONObject jsonObject = response.getJSONObject();
+                try {
+                    JSONArray photoJsonArray = jsonObject.getJSONArray("data");
+                    for(int i = 0; i < photoJsonArray.length(); i++){
+                        JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
+                        photoObjList.add(new Photo(photoJsonObject, albumName));
+                    }
+                    GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+                    if(nextRequest != null){
+                        nextRequest.setCallback(this);
+                        nextRequest.executeAsync();
+                    }
+
+                    Collections.sort(photoObjList);
+                    photoListAdapter.notifyDataSetChanged();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 "/" + albumId + "/photos",
                 null,
                 HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        JSONObject jsonObject = response.getJSONObject();
-                        try {
-                            photoJsonArray = jsonObject.getJSONArray("data");
-                            for(int i = 0; i < photoJsonArray.length(); i++){
-                                JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
-                                photoObjList.add(new Photo(photoJsonObject, albumName));
-                            }
-                            photoListAdapter.notifyDataSetChanged();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                getPhotosFromAlbumCallback
         ).executeAsync();
     }
-
-
 
     /*****************************
      * Menu bar

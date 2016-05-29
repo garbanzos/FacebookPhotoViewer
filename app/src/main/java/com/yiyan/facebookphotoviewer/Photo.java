@@ -3,7 +3,7 @@ package com.yiyan.facebookphotoviewer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Photo {
+public class Photo implements Comparable<Photo> {
 
     private String photoTitle;
     private String photoId;
@@ -31,5 +31,10 @@ public class Photo {
 
     public String getPhotoAlbum() {
         return photoAlbum;
+    }
+
+    @Override
+    public int compareTo(Photo another) {
+        return this.photoAlbum.compareTo(another.photoAlbum);
     }
 }
