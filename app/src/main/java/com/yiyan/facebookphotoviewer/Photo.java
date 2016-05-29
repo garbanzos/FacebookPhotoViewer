@@ -11,14 +11,13 @@ public class Photo implements Comparable<Photo> {
 
     public Photo(JSONObject photoJsonObject, String photoAlbum) {
         try {
-            this.photoTitle = photoJsonObject.has("name") ? photoJsonObject.getString("name") : "no title";
+            this.photoTitle = photoJsonObject.has("name") ? photoJsonObject.getString("name") : "Untitled";
             this.photoId = photoJsonObject.getString("id");
             this.photoAlbum = photoAlbum;
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     public String getPhotoTitle() {

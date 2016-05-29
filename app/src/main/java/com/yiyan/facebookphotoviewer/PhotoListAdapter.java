@@ -52,9 +52,7 @@ public class PhotoListAdapter extends ArrayAdapter<Photo> {
 
         holder.photoTitleView.setText(photoItem.getPhotoTitle());
         holder.photoAlbumView.setText(photoItem.getPhotoAlbum());
-        Picasso picasso = Picasso.with(context);
-        picasso.setIndicatorsEnabled(true);
-        picasso.load(url).into(holder.photoImageView);
+        Picasso.with(context).load(url).into(holder.photoImageView);
 
         return convertView;
     }
