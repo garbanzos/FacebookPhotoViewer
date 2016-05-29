@@ -1,7 +1,6 @@
 package com.yiyan.facebookphotoviewer;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ public class PhotoListAdapter extends ArrayAdapter<Photo> {
 
     private List<Photo> photoList;
     private LayoutInflater inflater;
+    private Context context;
 
     private class ViewHolder {
         ImageView photoImageView;
@@ -28,10 +29,11 @@ public class PhotoListAdapter extends ArrayAdapter<Photo> {
         super(context, R.layout.item_list_photo, photoList);
         inflater = LayoutInflater.from(context);
         this.photoList = photoList;
+        this.context = context;
     }
 
     public View getView(int position, View convertView, ViewGroup parent){
-        ViewHolder holder = null;
+        ViewHolder holder;
 
         if(convertView == null){
             holder = new ViewHolder();
@@ -46,11 +48,14 @@ public class PhotoListAdapter extends ArrayAdapter<Photo> {
         }
 
         Photo photoItem = photoList.get(position);
+        String url = "https://graph.facebook.com/" + photoItem.getPhotoId() + "/picture?type=normal&access_token=" + AccessToken.getCurrentAccessToken().getToken();
 
         holder.photoTitleView.setText(photoItem.getPhotoTitle());
         holder.photoAlbumView.setText(photoItem.getPhotoAlbum());
+        Picasso picasso = Picasso.with(context);
+        picasso.setIndicatorsEnabled(true);
+        picasso.load(url).into(holder.photoImageView);
 
-        new DownloadImage(holder.photoImageView).execute("https://graph.facebook.com/" + photoItem.getPhotoId() + "/picture?type=normal&access_token=" + AccessToken.getCurrentAccessToken().getToken());
         return convertView;
     }
 }
