@@ -31,11 +31,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Bundle inBundle = getIntent().getExtras();
-        String name = inBundle.get("name").toString();
-        String surname = inBundle.get("surname").toString();
-
-
         photoListView = (ListView)findViewById(R.id.photo_list);
         photoObjList = new ArrayList<>();
         photoListAdapter = new PhotoListAdapter(this, photoObjList);

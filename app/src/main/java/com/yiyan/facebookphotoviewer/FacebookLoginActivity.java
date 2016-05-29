@@ -21,19 +21,7 @@ public class FacebookLoginActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
     private AccessTokenTracker accessTokenTracker;
     private ProfileTracker profileTracker;
-
-    //Facebook login button
-    private FacebookCallback<LoginResult> callback = new FacebookCallback<LoginResult>() {
-        @Override
-        public void onSuccess(LoginResult loginResult) {
-            Profile profile = Profile.getCurrentProfile();
-            nextActivity(profile);
-        }
-        @Override
-        public void onCancel() {        }
-        @Override
-        public void onError(FacebookException e) {      }
-    };
+    private FacebookCallback<LoginResult> callback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +46,7 @@ public class FacebookLoginActivity extends AppCompatActivity {
         accessTokenTracker.startTracking();
         profileTracker.startTracking();
 
-        LoginButton loginButton = (LoginButton)findViewById(R.id.login_button);
+
         callback = new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -75,6 +63,8 @@ public class FacebookLoginActivity extends AppCompatActivity {
             public void onError(FacebookException e) {
             }
         };
+
+        LoginButton loginButton = (LoginButton)findViewById(R.id.login_button);
         loginButton.setReadPermissions("user_photos");
         loginButton.registerCallback(callbackManager, callback);
     }
@@ -82,7 +72,6 @@ public class FacebookLoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //Facebook login
         Profile profile = Profile.getCurrentProfile();
         nextActivity(profile);
     }
@@ -95,7 +84,6 @@ public class FacebookLoginActivity extends AppCompatActivity {
 
     protected void onStop() {
         super.onStop();
-        //Facebook login
         accessTokenTracker.stopTracking();
         profileTracker.stopTracking();
     }
@@ -103,7 +91,6 @@ public class FacebookLoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         super.onActivityResult(requestCode, responseCode, intent);
-        //Facebook login
         callbackManager.onActivityResult(requestCode, responseCode, intent);
 
     }
@@ -111,9 +98,6 @@ public class FacebookLoginActivity extends AppCompatActivity {
     private void nextActivity(Profile profile) {
         if (profile != null) {
             Intent main = new Intent(FacebookLoginActivity.this, MainActivity.class);
-            main.putExtra("name", profile.getFirstName());
-            main.putExtra("surname", profile.getLastName());
-            main.putExtra("imageUrl", profile.getProfilePictureUri(200, 200).toString());
             startActivity(main);
         }
     }
